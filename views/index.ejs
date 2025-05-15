@@ -1,0 +1,85 @@
+<div class="container mt-5">
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <h1 class="display-4 mb-4">Welcome to EV Charging</h1>
+            <hr class="eco-divider">
+            <p class="lead mb-4">Find and book charging stations for your electric vehicle</p>
+            <% if (!locals.user) { %>
+                <div class="d-grid gap-2">
+                    <a href="/register" class="btn btn-primary btn-lg mb-2">Register</a>
+                    <a href="/login" class="btn btn-outline-primary btn-lg">Login</a>
+                </div>
+            <% } else { %>
+                <p class="mb-4">Welcome back, <%= user.name %>!</p>
+                <a href="/dashboard" class="btn btn-primary btn-lg">Go to Dashboard</a>
+            <% } %>
+        </div>
+        <div class="col-md-6 position-relative">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h3>Why Choose Us?</h3>
+                    <ul class="list-unstyled mt-4">
+                        <li class="mb-3">
+                            <i class="bi bi-geo-alt text-success me-2"></i>
+                            Find charging stations near you
+                        </li>
+                        <li class="mb-3">
+                            <i class="bi bi-clock text-success me-2"></i>
+                            Real-time availability updates
+                        </li>
+                        <li class="mb-3">
+                            <i class="bi bi-lightning-charge text-success me-2"></i>
+                            Multiple charging types supported
+                        </li>
+                        <li class="mb-3">
+                            <i class="bi bi-phone text-success me-2"></i>
+                            Easy booking through our platform
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <!-- Decorative leaf SVG accent -->
+            <img src="/images/leaf.svg" alt="Leaf" style="position:absolute;top:-24px;right:-24px;width:64px;opacity:0.12;pointer-events:none;z-index:0;" />
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-search fa-3x text-success mb-3"></i>
+                    <h4>Find Stations</h4>
+                    <p>Locate charging stations near you with our interactive map.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-calendar-check fa-3x text-success mb-3"></i>
+                    <h4>Book & Pay</h4>
+                    <p>Reserve your charging slot and pay securely through our platform.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-chart-line fa-3x text-success mb-3"></i>
+                    <h4>Track Usage</h4>
+                    <p>Monitor your charging history and manage your vehicles.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- contentFor('styles') %>
+<style>
+.card {
+    transition: transform 0.2s;
+}
+.card:hover {
+    transform: translateY(-5px);
+}
+</style> 

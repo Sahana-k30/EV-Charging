@@ -1,0 +1,96 @@
+<%
+const styles = `
+<style>
+.station-card {
+    transition: transform 0.2s;
+}
+
+.station-card:hover {
+    transform: translateY(-5px);
+}
+
+.card-footer {
+    padding: 1rem;
+}
+
+.btn-sm {
+    margin-right: 0.5rem;
+}
+
+.btn-sm:last-child {
+    margin-right: 0;
+}
+</style>
+`;
+
+const scripts = `
+<script>
+function deleteVehicle(vehicleId) {
+    if (confirm('Are you sure you want to delete this vehicle?')) {
+        fetch('/vehicles/' + vehicleId, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                alert('Error deleting vehicle');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error deleting vehicle');
+        });
+    }
+}
+</script>
+`;
+%>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>My Vehicles</h2>
+            </div>
+
+            <% if (vehicles && vehicles.length > 0) { %>
+                <div class="row">
+                    <% vehicles.forEach(vehicle => { %>
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100 station-card">
+                                <div class="card-body">
+                                    <h5 class="card-title"><%= vehicle.make %> <%= vehicle.model %></h5>
+                                    <h6 class="card-subtitle mb-2 text-muted"><%= vehicle.year %></h6>
+                                    <div class="card-text">
+                                        <p><strong>License Plate:</strong> <%= vehicle.licensePlate %></p>
+                                        <p><strong>Battery:</strong> <%= vehicle.batteryCapacity %> kWh</p>
+                                        <p><strong>Charging Type:</strong> <%= vehicle.chargingType %></p>
+                                        <p><strong>Current Range:</strong> <%= vehicle.currentRange %> km</p>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-transparent border-top-0">
+                                    <a href="/vehicles/<%= vehicle._id %>" class="btn btn-info btn-sm">
+                                        <i class="fas fa-info-circle"></i> Details
+                                    </a>
+                                    <form action="/vehicles/<%= vehicle._id %>/delete" method="POST" style="display:inline;">
+                                        <button type="submit" class="btn btn-danger btn-sm">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+            <% } else { %>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> You haven't added any vehicles yet.
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div> 

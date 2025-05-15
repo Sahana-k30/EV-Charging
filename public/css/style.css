@@ -1,0 +1,233 @@
+/* Ecofriendly Theme Colors */
+:root {
+    --eco-green: #43a047;
+    --eco-green-dark: #2e7031;
+    --eco-leaf: #8bc34a;
+    --eco-earth: #e8f5e9;
+    --eco-brown: #795548;
+    --eco-accent: #b2dfdb;
+    --eco-text: #222;
+}
+
+body {
+    background: linear-gradient(135deg, var(--eco-earth) 0%, #f8fff4 100%);
+    color: var(--eco-text);
+    font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+/* Card styles */
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    transition: transform 0.2s;
+    border-radius: 1rem;
+    border: 1px solid var(--eco-leaf);
+    box-shadow: 0 4px 16px rgba(67,160,71,0.07);
+    background: #fff;
+}
+
+.card:hover {
+    box-shadow: 0 8px 24px rgba(67,160,71,0.13);
+    transform: translateY(-6px) scale(1.02);
+}
+
+/* Button styles */
+.btn {
+    transition: all 0.2s;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+/* Form styles */
+.form-control:focus {
+    box-shadow: 0 0 0 0.2rem var(--eco-accent);
+    border-color: var(--eco-green);
+}
+
+/* Navigation styles */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: var(--eco-earth) !important;
+    border-bottom: 2px solid var(--eco-leaf);
+}
+
+.navbar-brand, .footer-link, .text-dark {
+    color: var(--eco-green-dark) !important;
+}
+
+.nav-link {
+    transition: color 0.2s;
+}
+
+.nav-link:hover {
+    color: var(--eco-green) !important;
+}
+
+.nav-link.active {
+    color: var(--eco-green) !important;
+}
+
+/* Footer styles */
+footer {
+    margin-top: auto;
+    background-color: var(--eco-earth) !important;
+    padding: 1rem 0;
+    border-top: 1px solid #dee2e6;
+}
+
+/* Alert styles */
+.alert {
+    border: none;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+/* Badge styles */
+.badge {
+    font-weight: 500;
+}
+
+.badge.bg-success, .badge.bg-primary {
+    background: var(--eco-green) !important;
+    color: #fff !important;
+}
+
+/* Table styles */
+.table th {
+    border-top: none;
+    color: var(--eco-green-dark);
+}
+
+/* List group styles */
+.list-group-item {
+    transition: background-color 0.2s;
+}
+
+.list-group-item:hover {
+    background: var(--eco-accent);
+}
+
+/* Custom styles */
+body {
+    padding-top: 20px;
+}
+
+.card-header {
+    background: var(--eco-accent);
+    color: var(--eco-green-dark);
+    border-bottom: 1px solid var(--eco-leaf);
+    font-weight: 600;
+}
+
+.btn-primary {
+    background: linear-gradient(90deg, var(--eco-green), var(--eco-leaf));
+    border: none;
+    color: #fff;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(67,160,71,0.15);
+}
+
+.btn-primary:hover, .btn-outline-primary:hover {
+    background: linear-gradient(90deg, var(--eco-green-dark), var(--eco-green));
+    color: #fff;
+}
+
+.btn-outline-primary {
+    border: 2px solid var(--eco-green);
+    color: var(--eco-green);
+    background: transparent;
+    font-weight: 600;
+}
+
+.alert {
+    margin-bottom: 1rem;
+}
+
+.table th {
+    font-weight: 600;
+}
+
+.badge {
+    font-weight: 500;
+}
+
+footer {
+    margin-top: 3rem;
+    padding: 1rem 0;
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+}
+
+.min-vh-75 {
+    min-height: 75vh;
+}
+
+.station-card {
+    transition: all 0.3s ease;
+}
+
+.station-card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.form-check {
+    margin-bottom: 1rem;
+}
+
+/* Decorative leaf accent for cards */
+.card::before {
+    content: '';
+    display: block;
+    position: absolute;
+    top: -12px;
+    right: 24px;
+    width: 32px;
+    height: 32px;
+    background: url('/public/images/leaf.svg') no-repeat center/contain;
+    opacity: 0.08;
+    pointer-events: none;
+}
+
+/* Section titles */
+h1, h2, h3, h4, h5 {
+    color: var(--eco-green-dark);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+/* Custom ecofriendly divider */
+.eco-divider {
+    border: none;
+    border-top: 2px solid var(--eco-leaf);
+    margin: 2rem 0;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--eco-leaf);
+    border-radius: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--eco-earth);
+}
+
+.avatar-circle {
+    background: var(--eco-leaf);
+    color: var(--eco-green-dark);
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(139,195,74,0.15);
+} 

@@ -1,0 +1,196 @@
+<%- contentFor('content') %>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Payment Analysis</h2>
+                <div>
+                    <button onclick="exportData()" class="btn btn-success">
+                        <i class="fas fa-download"></i> Export Data
+                    </button>
+                </div>
+            </div>
+
+            <!-- Date Range Filter -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form id="dateRangeForm" class="row g-3">
+                        <div class="col-md-4">
+                            <label for="startDate" class="form-label">Start Date</label>
+                            <input type="date" class="form-control" id="startDate" name="startDate">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="endDate" class="form-label">End Date</label>
+                            <input type="date" class="form-control" id="endDate" name="endDate">
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary">Apply Filter</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Summary Cards -->
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h6 class="card-subtitle mb-2 text-muted">Total Spent</h6>
+                            <h3 class="card-title">$<%= stats.totalSpent.toFixed(2) %></h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h6 class="card-subtitle mb-2 text-muted">Total Energy</h6>
+                            <h3 class="card-title"><%= stats.totalEnergy.toFixed(1) %> kWh</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h6 class="card-subtitle mb-2 text-muted">Average Cost</h6>
+                            <h3 class="card-title">$<%= stats.averageCost.toFixed(2) %></h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h6 class="card-subtitle mb-2 text-muted">Number of Sessions</h6>
+                            <h3 class="card-title"><%= stats.numberOfSessions %></h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Monthly Spending Chart -->
+                <div class="col-md-8 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Monthly Spending</h5>
+                            <canvas id="monthlySpendingChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Methods Chart -->
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Payment Methods</h5>
+                            <canvas id="paymentMethodsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- contentFor('scripts') %>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Monthly Spending Chart
+const monthlyData = JSON.parse('<%- JSON.stringify(stats.monthlySpending) %>');
+const monthlyLabels = Object.keys(monthlyData);
+const monthlyValues = Object.values(monthlyData);
+
+new Chart(document.getElementById('monthlySpendingChart'), {
+    type: 'bar',
+    data: {
+        labels: monthlyLabels,
+        datasets: [{
+            label: 'Monthly Spending',
+            data: monthlyValues,
+            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: value => '$' + value
+                }
+            }
+        }
+    }
+});
+
+// Payment Methods Chart
+const methodsData = JSON.parse('<%- JSON.stringify(stats.paymentMethods) %>');
+const methodLabels = Object.keys(methodsData);
+const methodValues = Object.values(methodsData);
+
+new Chart(document.getElementById('paymentMethodsChart'), {
+    type: 'doughnut',
+    data: {
+        labels: methodLabels,
+        datasets: [{
+            data: methodValues,
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.5)',
+                'rgba(54, 162, 235, 0.5)',
+                'rgba(255, 206, 86, 0.5)',
+                'rgba(75, 192, 192, 0.5)'
+            ],
+            borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)'
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Date range form submission
+document.getElementById('dateRangeForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    window.location.href = `/payments/analysis?startDate=${startDate}&endDate=${endDate}`;
+});
+
+// Export data function
+function exportData() {
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    let url = '/payments/export';
+    if (startDate && endDate) {
+        url += `?startDate=${startDate}&endDate=${endDate}`;
+    }
+    window.location.href = url;
+}
+</script>
+
+<%- contentFor('styles') %>
+<style>
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.card-title {
+    margin-bottom: 0;
+}
+
+canvas {
+    max-height: 300px;
+}
+</style> 

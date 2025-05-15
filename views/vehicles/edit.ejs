@@ -1,0 +1,110 @@
+<%- contentFor('content') %>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0">Edit Vehicle</h2>
+                </div>
+                <div class="card-body">
+                    <form id="editVehicleForm" class="needs-validation" novalidate action="/vehicles/<%= vehicle._id %>/edit" method="POST">
+                        <div class="mb-3">
+                            <label for="make" class="form-label">Make</label>
+                            <input type="text" class="form-control" id="make" name="make" 
+                                   value="<%= vehicle.make %>" required>
+                            <div class="invalid-feedback">
+                                Please enter the vehicle make.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="model" class="form-label">Model</label>
+                            <input type="text" class="form-control" id="model" name="model" 
+                                   value="<%= vehicle.model %>" required>
+                            <div class="invalid-feedback">
+                                Please enter the vehicle model.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="year" class="form-label">Year</label>
+                            <input type="number" class="form-control" id="year" name="year" 
+                                   value="<%= vehicle.year %>"
+                                   min="2000" max="<%= new Date().getFullYear() + 1 %>" required>
+                            <div class="invalid-feedback">
+                                Please enter a valid year (2000 or later).
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="licensePlate" class="form-label">License Plate</label>
+                            <input type="text" class="form-control" id="licensePlate" name="licensePlate" 
+                                   value="<%= vehicle.licensePlate %>" required>
+                            <div class="invalid-feedback">
+                                Please enter the license plate number.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="batteryCapacity" class="form-label">Battery Capacity (kWh)</label>
+                            <input type="number" class="form-control" id="batteryCapacity" 
+                                   name="batteryCapacity" min="1" step="0.1" 
+                                   value="<%= vehicle.batteryCapacity %>" required>
+                            <div class="invalid-feedback">
+                                Please enter the battery capacity.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="chargingType" class="form-label">Charging Type</label>
+                            <select class="form-select" id="chargingType" name="chargingType" required>
+                                <option value="">Select charging type</option>
+                                <option value="Type 1" <%= vehicle.chargingType === 'Type 1' ? 'selected' : '' %>>Type 1</option>
+                                <option value="Type 2" <%= vehicle.chargingType === 'Type 2' ? 'selected' : '' %>>Type 2</option>
+                                <option value="CHAdeMO" <%= vehicle.chargingType === 'CHAdeMO' ? 'selected' : '' %>>CHAdeMO</option>
+                                <option value="CCS" <%= vehicle.chargingType === 'CCS' ? 'selected' : '' %>>CCS</option>
+                            </select>
+                            <div class="invalid-feedback">
+                                Please select a charging type.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="currentRange" class="form-label">Current Range (km)</label>
+                            <input type="number" class="form-control" id="currentRange" 
+                                   name="currentRange" min="0" 
+                                   value="<%= vehicle.currentRange %>" required>
+                            <div class="invalid-feedback">
+                                Please enter the current range.
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Update Vehicle</button>
+                            <a href="/vehicles/<%= vehicle._id %>" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- contentFor('scripts') %>
+<script>
+// Form validation only (no AJAX)
+(function () {
+    'use strict';
+    var forms = document.querySelectorAll('.needs-validation');
+    Array.prototype.slice.call(forms)
+        .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+})();
+</script> 
