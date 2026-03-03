@@ -1,0 +1,10 @@
+# top‑level modules (should no longer exist here)
+node_modules
+
+# backend modules
+/backend/node_modules
+
+# react frontend modules and build output
+/frontend/node_modules
+/frontend/build
+
