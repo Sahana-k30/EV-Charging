@@ -9,17 +9,40 @@ const Dashboard = () => {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [userLocation, setUserLocation] = useState(null);
 
   useEffect(() => {
+    // Request user's geolocation
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+        },
+        (error) => {
+          console.debug('Geolocation not available:', error.code);
+          // Continue without location
+        }
+      );
+    }
     fetchDashboardData();
   }, []);
+
+  // Fetch nearby stations when location is available
+  useEffect(() => {
+    if (userLocation) {
+      fetchNearbyStations();
+    }
+  }, [userLocation]);
 
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
       
       // Fetch user vehicles
-      const vehiclesRes = await fetch('/vehicles', {
+      const vehiclesRes = await fetch('/api/vehicles', {
         credentials: 'include'
       });
       if (vehiclesRes.ok) {
@@ -27,17 +50,8 @@ const Dashboard = () => {
         setVehicles(vehiclesData.vehicles || []);
       }
       
-      // Fetch nearby stations
-      const stationsRes = await fetch('/stations', {
-        credentials: 'include'
-      });
-      if (stationsRes.ok) {
-        const stationsData = await stationsRes.json();
-        setStations(stationsData.stations || []);
-      }
-      
       // Fetch payment history
-      const paymentsRes = await fetch('/payments', {
+      const paymentsRes = await fetch('/api/payments', {
         credentials: 'include'
       });
       if (paymentsRes.ok) {
@@ -53,6 +67,39 @@ const Dashboard = () => {
     }
   };
 
+  const fetchNearbyStations = async () => {
+    try {
+      const maxDistance = 15000; // 15 km in meters
+      const stationsRes = await fetch(
+        `/api/stations/nearby?lat=${userLocation.lat}&lng=${userLocation.lng}&maxDistance=${maxDistance}`,
+        { credentials: 'include' }
+      );
+      if (stationsRes.ok) {
+        const stationsData = await stationsRes.json();
+        setStations(stationsData.stations?.slice(0, 3) || []);
+      } else {
+        // Fallback to all stations
+        const allStationsRes = await fetch('/api/stations', { credentials: 'include' });
+        if (allStationsRes.ok) {
+          const allStationsData = await allStationsRes.json();
+          setStations(allStationsData.stations?.slice(0, 3) || []);
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching nearby stations:', err);
+      // Show all stations as fallback
+      try {
+        const allStationsRes = await fetch('/api/stations', { credentials: 'include' });
+        if (allStationsRes.ok) {
+          const allStationsData = await allStationsRes.json();
+          setStations(allStationsData.stations?.slice(0, 3) || []);
+        }
+      } catch (err2) {
+        console.error('Error fetching all stations:', err2);
+      }
+    }
+  };
+
   if (loading) return <div className="loading">Loading dashboard...</div>;
 
   return (
@@ -62,7 +109,7 @@ const Dashboard = () => {
       
       {/* User Info Section */}
       <section className="dashboard-section">
-        <h2>Profile Information</h2>
+        <h2>📋 Profile Information</h2>
         <div className="user-info">
           <p><strong>Name:</strong> {user?.name}</p>
           <p><strong>Email:</strong> {user?.email}</p>
@@ -72,7 +119,7 @@ const Dashboard = () => {
 
       {/* Vehicles Section */}
       <section className="dashboard-section">
-        <h2>Your Vehicles ({vehicles.length})</h2>
+        <h2>🚗 Your Vehicles ({vehicles.length})</h2>
         {vehicles.length > 0 ? (
           <div className="vehicles-grid">
             {vehicles.map(vehicle => (
@@ -96,15 +143,15 @@ const Dashboard = () => {
 
       {/* Nearby Stations Section */}
       <section className="dashboard-section">
-        <h2>Nearby Charging Stations ({stations.length})</h2>
+        <h2>⚡ Nearby Charging Stations {userLocation ? '(near your location)' : ''} ({stations.length})</h2>
         {stations.length > 0 ? (
           <div className="stations-grid">
             {stations.slice(0, 3).map(station => (
               <div key={station._id} className="station-card">
                 <h3>{station.name}</h3>
-                <p><strong>Location:</strong> {station.location}</p>
-                <p><strong>Available Points:</strong> {station.chargingPoints?.length || 0}</p>
-                <p><strong>Rating:</strong> {station.rating || 'N/A'}</p>
+                <p><strong>Location:</strong> {station.location?.address || 'Location not available'}</p>
+                <p><strong>City:</strong> {station.location?.city}</p>
+                <p><strong>Available Points:</strong> {station.chargingPoints?.filter(cp => cp.status === 'Available').length || 0}</p>
                 <Link to="/stations" className="btn-secondary">View All Stations</Link>
               </div>
             ))}

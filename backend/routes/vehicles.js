@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/auth');
 const Vehicle = require('../models/Vehicle');
-const User = require('../models/User');
 
 // @route   GET /vehicles
 // @desc    Get all user vehicles (API)
@@ -36,7 +35,12 @@ router.post('/', protect, async (req, res) => {
             currentRange
         } = req.body;
 
-        // Create vehicle
+        // Validate required fields
+        if (!make || !model || !year || !licensePlate || !batteryCapacity || !chargingType) {
+            return res.status(400).json({ error: 'All fields are required' });
+        }
+
+        // Create vehicle with userId to associate with current user
         const vehicle = await Vehicle.create({
             userId: req.user._id,
             make,
@@ -45,12 +49,15 @@ router.post('/', protect, async (req, res) => {
             licensePlate,
             batteryCapacity,
             chargingType,
-            currentRange
+            currentRange: currentRange || 0
         });
-        await User.findByIdAndUpdate(req.user._id, { $push: { vehicles: vehicle._id } });
+        
         res.status(201).json({ vehicle });
     } catch (err) {
         console.error(err);
+        if (err.code === 11000) {
+            return res.status(400).json({ error: 'License plate already exists' });
+        }
         res.status(500).json({ error: 'Error adding vehicle' });
     }
 });
@@ -144,11 +151,6 @@ router.delete('/:id', protect, async (req, res) => {
         if (!vehicle) {
             return res.status(404).json({ error: 'Vehicle not found' });
         }
-        // Remove vehicle from user's vehicles array
-        await User.findByIdAndUpdate(
-            req.user._id,
-            { $pull: { vehicles: req.params.id } }
-        );
         res.json({ message: 'Vehicle deleted successfully' });
     } catch (err) {
         console.error(err);

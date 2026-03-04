@@ -14,6 +14,7 @@ const vehicleRoutes = require('./routes/vehicles');
 const bookingRoutes = require('./routes/bookings');
 const paymentRoutes = require('./routes/payments');
 const userRoutes = require('./routes/users');
+const externalStations = require("./routes/externalStations");
 
 const app = express();
 
@@ -53,6 +54,7 @@ function registerRoutes() {
     app.use('/api/bookings', bookingRoutes);
     app.use('/api/payments', paymentRoutes);
     app.use('/api/users', userRoutes);
+    app.use("/api/external-stations", externalStations);
 
     // ================= PRODUCTION BUILD =================
     if (process.env.NODE_ENV === 'production') {

@@ -44,6 +44,43 @@ router.get('/', protect, async (req, res) => {
     }
 });
 
+// @route   GET /nearby
+// @desc    Get nearby stations based on user geolocation
+// @access  Protected
+router.get('/nearby', protect, async (req, res) => {
+    try {
+        const { lat, lng, maxDistance = 15000 } = req.query; // maxDistance in meters
+        
+        if (!lat || !lng) {
+            return res.status(400).json({ error: 'Latitude and longitude are required' });
+        }
+
+        const stations = await Station.find({
+            'location.coordinates': {
+                $near: {
+                    $geometry: {
+                        type: 'Point',
+                        coordinates: [parseFloat(lng), parseFloat(lat)]
+                    },
+                    $maxDistance: parseInt(maxDistance)
+                }
+            }
+        }).lean();
+
+        const stationsWithDetails = stations.map(station => ({
+            ...station,
+            _id: station._id.toString(),
+            availablePoints: station.chargingPoints.filter(point => point.status === 'Available').length,
+            totalPoints: station.chargingPoints.length
+        }));
+
+        res.json({ stations: stationsWithDetails });
+    } catch (err) {
+        console.error('Error fetching nearby stations:', err);
+        res.status(500).json({ error: 'Error fetching nearby stations' });
+    }
+});
+
 // @route   GET /stations/:id
 // @desc    Get station details
 router.get('/:id', protect, async (req, res) => { 

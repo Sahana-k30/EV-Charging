@@ -1,3 +1,4 @@
+/* Stations Page */
 .stations-page {
   min-height: 100vh;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
@@ -34,46 +35,90 @@
   font-size: 15px;
 }
 
+/* Map Section */
+.map-section {
+  max-width: 1200px;
+  margin: 0 auto 40px;
+}
+
+.map-section h2 {
+  font-size: 24px;
+  color: #333;
+  margin: 0 0 15px 0;
+  font-weight: 600;
+}
+
+.map-section > div {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* Enhanced Controls */
 .stations-controls {
   max-width: 1200px;
   margin: 0 auto 30px;
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 15px;
   flex-wrap: wrap;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
 }
 
-.filter-section {
+.control-group {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex: 1;
+  min-width: 200px;
 }
 
-.filter-section label {
+.control-group label {
   font-weight: 600;
   color: #333;
   font-size: 15px;
+  white-space: nowrap;
 }
 
-.filter-select {
+.filter-select, .search-input {
   padding: 10px 15px;
-  border: 2px solid #ddd;
+  border: 2px solid #e0e0e0;
   border-radius: 8px;
   background: white;
   cursor: pointer;
   font-size: 14px;
   transition: all 0.3s;
-  min-width: 220px;
+  flex: 1;
 }
 
-.filter-select:hover {
+.search-input {
+  cursor: text;
+}
+
+.filter-select:hover, .search-input:hover {
   border-color: #667eea;
+  background: #f8f9ff;
 }
 
-.filter-select:focus {
+.filter-select:focus, .search-input:focus {
   outline: none;
   border-color: #667eea;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  background: white;
+}
+
+.warning-banner {
+  max-width: 1200px;
+  margin: 0 auto 20px;
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  color: #856404;
+  padding: 15px 20px;
+  border-radius: 8px;
+  font-size: 15px;
 }
 
 .location-info {
@@ -84,6 +129,20 @@
   border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Stations Section Header */
+.stations-section {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.stations-section h2 {
+  font-size: 24px;
+  color: #333;
+  margin: 0 0 25px 0;
+  font-weight: 600;
 }
 
 .stations-grid {
@@ -145,56 +204,101 @@
   gap: 15px;
 }
 
-.location-info-card {
+.station-info {
   padding-bottom: 15px;
   border-bottom: 1px solid #f0f0f0;
 }
 
-.location-info-card strong {
-  display: block;
-  color: #333;
-  font-size: 14px;
-  margin-bottom: 5px;
-}
-
-.location-info-card p {
-  margin: 0;
+.station-info .location {
   color: #666;
   font-size: 13px;
+  margin: 0 0 8px 0;
   line-height: 1.5;
 }
 
-.charging-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+.station-info .city {
+  color: #999;
+  font-size: 13px;
+  margin: 0;
 }
 
-.stat-item {
-  background: #f5f5f5;
-  padding: 12px;
+/* Availability Section */
+.availability-section {
+  padding: 15px;
+  background: #f8f9ff;
   border-radius: 8px;
-  text-align: center;
-  border-left: 3px solid #667eea;
 }
 
-.stat-item.available {
-  border-left-color: #4caf50;
+.availability-stat {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  margin-right: 20px;
 }
 
-.stat-label {
-  display: block;
+.availability-stat.available {
+  color: #4caf50;
+}
+
+.availability-stat.unavailable {
+  color: #ff6b6b;
+}
+
+.availability-stat .label {
+  font-size: 12px;
+  color: #999;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.availability-stat .value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #333;
+}
+
+.availability-bar {
+  background: #e0e0e0;
+  height: 8px;
+  border-radius: 4px;
+  margin: 8px 0;
+  overflow: hidden;
+}
+
+.availability-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4caf50, #81c784);
+  transition: width 0.3s ease;
+}
+
+.availability-text {
+  margin: 8px 0 0 0;
   color: #666;
   font-size: 12px;
   font-weight: 500;
-  margin-bottom: 5px;
 }
 
-.stat-value {
-  display: block;
-  font-size: 20px;
-  font-weight: 700;
+.station-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 15px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.station-details p {
+  margin: 0;
+  color: #666;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.station-details strong {
   color: #333;
+  font-weight: 600;
 }
 
 .status-badge {
@@ -222,10 +326,20 @@
   color: #721c24;
 }
 
-.operating-hours {
-  font-size: 13px;
+.amenities {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.amenity-tag {
+  background: #f0f0f0;
   color: #666;
-  padding: 10px 0;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .station-card-footer {
@@ -288,7 +402,7 @@
   font-size: 15px;
 }
 
-.btn-reset-filter {
+.btn-secondary {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
@@ -300,7 +414,7 @@
   transition: all 0.3s;
 }
 
-.btn-reset-filter:hover {
+.btn-secondary:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
@@ -340,6 +454,14 @@
     font-size: 32px;
   }
 
+  .map-section {
+    margin-bottom: 25px;
+  }
+
+  .map-section > div {
+    height: 400px;
+  }
+
   .stations-grid {
     grid-template-columns: 1fr;
     gap: 20px;
@@ -348,19 +470,25 @@
   .stations-controls {
     flex-direction: column;
     align-items: stretch;
+    gap: 12px;
   }
 
-  .filter-section {
+  .control-group {
     flex-direction: column;
+    align-items: stretch;
+    min-width: unset;
   }
 
-  .filter-select {
-    min-width: unset;
+  .filter-select, .search-input {
     width: 100%;
   }
 
-  .charging-stats {
-    grid-template-columns: 1fr;
+  .location-info {
+    white-space: normal;
+  }
+
+  .availability-stat {
+    margin-right: 15px;
   }
 
   .station-card-header {
