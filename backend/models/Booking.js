@@ -46,6 +46,11 @@ required:true
 }
 },
 
+date:{
+    type:String,
+    required:true
+},
+
 slot:{
 type:String,
 required:true
@@ -81,6 +86,15 @@ energyCost:{type:Number,default:0},
 parkingCost:{type:Number,default:0},
 tax:{type:Number,default:0},
 total:{type:Number,default:0}
+},
+paymentStatus:{
+type:String,
+enum:["Pending","Paid"],
+default:"Pending"
+},
+
+paymentId:{
+type:String
 }
 
 },{

@@ -266,21 +266,17 @@ const Stations = () => {
 
           <div
             key={station._id || station.name}
-            className="station-card"
+            className="station-card flexflex-col justify-between"
             onClick={() => handleStationClick(station)}
           >
 
-            <h3>{station.name}</h3>
+            <h3 className="text-xl font-bold">{station.name}</h3>
 
             <p>{station.location?.address}</p>
 
             <p>{station.location?.city}</p>
 
-            <p>
-              Available: {station.availablePoints}/{station.totalPoints}
-            </p>
-
-            <button
+            <button className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 "
               onClick={(e) => {
                 e.stopPropagation();
                 handleStationClick(station);

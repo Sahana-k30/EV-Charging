@@ -12,8 +12,7 @@ const paymentSchema = new mongoose.Schema({
         required: true
     },
     station: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Station',
+        type: String,
         required: true
     },
     amount: {
@@ -95,29 +94,32 @@ const paymentSchema = new mongoose.Schema({
 });
 
 // Update booking payment status when payment status changes
-paymentSchema.pre('save', async function(next) {
-    if (this.isModified('status')) {
-        try {
-            const booking = await mongoose.model('Booking').findById(this.booking);
-            if (booking) {
-                booking.payment.status = this.status;
-                booking.payment.method = this.paymentMethod;
-                if (this.status === 'Completed') {
-                    booking.payment.transactionId = this.transactionId;
-                    booking.payment.paidAt = this.paidAt;
-                } else if (this.status === 'Refunded') {
-                    booking.payment.refundedAt = this.refundedAt;
-                }
-                await booking.save();
-            }
-        } catch (error) {
-            next(error);
-            return;
-        }
-    }
-    next();
-});
+paymentSchema.pre("save", async function(next) {
 
+try {
+
+const booking = await mongoose.model("Booking").findById(this.booking);
+
+if (!booking) return next();
+
+if (this.status === "Completed") {
+
+booking.paymentStatus = "Paid";
+booking.paymentId = this.transactionId;
+
+await booking.save();
+
+}
+
+next();
+
+} catch (err) {
+
+next(err);
+
+}
+
+});
 // Calculate subtotal before saving
 paymentSchema.pre('save', function(next) {
     if (this.isModified('breakdown')) {
@@ -127,13 +129,6 @@ paymentSchema.pre('save', function(next) {
     next();
 });
 
-// Create indexes
-paymentSchema.index({ user: 1, createdAt: -1 });
-paymentSchema.index({ booking: 1 });
-paymentSchema.index({ station: 1 });
-paymentSchema.index({ transactionId: 1 }, { unique: true, sparse: true });
-paymentSchema.index({ status: 1 });
-paymentSchema.index({ 'refund.status': 1 });
 
 const Payment = mongoose.model('Payment', paymentSchema);
 module.exports = Payment; 

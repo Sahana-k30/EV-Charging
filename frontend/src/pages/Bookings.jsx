@@ -1,23 +1,38 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
+import { io } from "socket.io-client";
+
+const socket = io("http://localhost:9000");
+const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
+
 const Bookings = () => {
 
 const [bookings,setBookings] = useState([]);
 const [vehicles,setVehicles] = useState([]);
-const [selectedStation,setSelectedStation] = useState(null);
 const [estimatedCost,setEstimatedCost] = useState(0);
 
 const [formData,setFormData] = useState({
 vehicle:"",
 chargingPointIndex:"",
+date:"",
 slot:"",
 initialBatteryLevel:"",
 targetBatteryLevel:""
 });
 
 const storedUser = JSON.parse(localStorage.getItem("user"));
+const [selectedStation,setSelectedStation] = useState(null);
 
+useEffect(() => {
+
+  const station = JSON.parse(localStorage.getItem("selectedStation"));
+
+  if (station) {
+    setSelectedStation(station);
+  }
+
+}, []);
 const userId =
 storedUser?._id ||
 storedUser?.id ||
@@ -26,36 +41,46 @@ const token = localStorage.getItem("token");
 
 useEffect(()=>{
 
+socket.on("slotBooked", ()=>{
+fetchBookings();
+});
+
+return () => {
+socket.off("slotBooked");
+};
+
+},[selectedStation]);
+
+useEffect(()=>{
+
 if(!userId) return;
 
-const station = JSON.parse(localStorage.getItem("selectedStation"));
-setSelectedStation(station);
-
-fetchBookings();
 fetchVehicles();
 
+},[userId]);
+
+useEffect(()=>{
+fetchBookings();
 },[userId]);
 
 
 const fetchBookings = async () => {
 
-if(!userId){
-console.log("User ID missing");
-return;
-}
+try {
 
-try{
+if (!userId) return;
 
-const res = await axios.get(`/api/bookings/user/${userId}`);
+const res = await axios.get(
+`/api/bookings/user/${userId}`
+);
 
 setBookings(res.data);
 
-}catch(err){
+} catch (err) {
 console.log(err);
 }
 
 };
-
 
 const fetchVehicles = async()=>{
 
@@ -76,12 +101,15 @@ console.log(err);
 };
 
 
-const handleChange=(e)=>{
+const handleChange = (e) => {
 
-setFormData({
-...formData,
-[e.target.name]:e.target.value
-});
+const { name, value } = e.target;
+
+setFormData(prev => ({
+...prev,
+[name]: value,
+...(name === "date" ? { slot: "" } : {})
+}));
 
 };
 
@@ -186,7 +214,8 @@ type:cp.type,
 power:cp.power
 },
 
-slot:formData.slot,
+date: formData.date,
+slot: formData.slot,
 
 status:"Pending",
 
@@ -222,6 +251,17 @@ total:estimatedCost
 
     alert("Booking Successful ⚡");
 
+    setFormData({
+      vehicle:"",
+      chargingPointIndex:"",
+      date:"",
+      slot:"",
+      initialBatteryLevel:"",
+      targetBatteryLevel:""
+      });
+
+      setEstimatedCost(0);
+
   } catch (err) {
 
     console.error("Booking error:", err.response?.data || err.message);
@@ -229,22 +269,99 @@ total:estimatedCost
 
   }
 };
+const bookedSlots = bookings
+.filter(b =>
+b.station?.stationId === selectedStation?._id &&
+b.date === formData.date &&
+b.chargingPoint?.pointId === selectedStation?.chargingPoints?.[formData.chargingPointIndex]?.pointId
+)
+.map(b => b.slot);
 
+const slots = [
+"08:00 - 09:00",
+"09:00 - 10:00",
+"10:00 - 11:00",
+"11:00 - 12:00"
+];
+
+const handlePayment = async (booking) => {
+
+try{
+
+const res = await axios.post("/api/payments/create-order",{
+amount: booking.cost.total
+});
+
+const order = res.data;
+
+const options = {
+
+key: razorpayKey,
+
+amount: order.amount,
+
+currency: "INR",
+
+name: "EV Charging",
+
+description: "Charging Slot Booking",
+
+order_id: order.id,
+
+handler: async function(response){
+
+await axios.post("/api/bookings/verify",{
+bookingId: booking._id,
+paymentId: response.razorpay_payment_id
+});
+
+await axios.post("/api/payments/save",{
+bookingId: booking._id,
+amount: booking.cost.total,
+paymentId: response.razorpay_payment_id
+});
+
+alert("Payment Successful ⚡");
+
+fetchBookings();
+
+},
+
+modal:{
+ondismiss:function(){
+alert("Payment cancelled");
+}
+}
+
+};
+
+const rzp = new window.Razorpay(options);
+
+rzp.open();
+
+}catch(err){
+
+console.log(err);
+
+}
+
+};
 
 return(
 
-<div className="min-h-screen bg-gray-100 p-10">
+<div className="bg-white rounded-2xl shadow-xl max-w-4xl border m-10 ">
 
-<h1 className="text-3xl font-bold mb-8">
+<h1 className="text-3xl font-bold p-100">
 ⚡ EV Charging Bookings
 </h1>
 
 
 {/* BOOKINGS SECTION */}
 
-<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mt-10">
 
 {bookings.map((b)=>(
+
 <div
 key={b._id}
 className="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition border">
@@ -258,18 +375,34 @@ Vehicle : {b.vehicle?.make} {b.vehicle?.model}
 </p>
 
 <p className="text-sm text-gray-500">
-Slot : {b.slot}
+Date : {b.date}
 </p>
 
 <p className="text-sm text-gray-500">
-Battery : {b.initialBatteryLevel}% → {b.targetBatteryLevel}%
+Slot : {b.slot}
 </p>
 
 <p className="text-indigo-600 font-semibold mt-2">
 ₹ {b.cost?.total}
 </p>
 
+<p className="text-sm mt-2">
+Status : {b.status}
+</p>
+
+{b.paymentStatus === "Pending" && (
+
+<button
+className="bg-green-600 text-white px-4 py-2 mt-3 rounded"
+onClick={()=>handlePayment(b)}
+>
+Pay Now
+</button>
+
+)}
+
 </div>
+
 ))}
 
 </div>
@@ -277,7 +410,29 @@ Battery : {b.initialBatteryLevel}% → {b.targetBatteryLevel}%
 
 {/* BOOKING FORM */}
 
-{selectedStation && (
+{!selectedStation ? (
+
+<div className="bg-white rounded-2xl shadow-xl p-10 max-w-3xl border text-center">
+
+<h2 className="text-2xl font-semibold mb-4">
+Book Charging Slot
+</h2>
+
+<p className="text-gray-500 mb-6">
+Please select a charging station from the stations page to continue booking.
+</p>
+
+<button
+className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition"
+onClick={() => window.location.href="/stations"}
+>
+Browse Stations
+</button>
+
+</div>
+
+):(
+  
 
 <div className="bg-white rounded-2xl shadow-xl p-10 max-w-3xl border">
 
@@ -301,7 +456,7 @@ Book Charging Slot
 </div>
 
 
-<form onSubmit={handleSubmit} className="space-y-6">
+<form onSubmit={handleSubmit} className="space-y-8">
 
 
 {/* VEHICLE */}
@@ -316,7 +471,7 @@ Select Vehicle
 name="vehicle"
 onChange={handleChange}
 required
-className="w-full border rounded-lg p-3 mt-2">
+className="w-full border border-gray-300 rounded-lg p-3 mt-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
 
 <option value="">Choose Vehicle</option>
 
@@ -355,7 +510,7 @@ onClick={() =>
     chargingPointIndex: i
   }))
 }
-className={`cursor-pointer p-4 rounded-xl border text-center transition
+className={`cursor-pointer p-5 rounded-xl border text-center transition transform hover:scale-105
 
 ${formData.chargingPointIndex==i
 ?"border-indigo-600 bg-indigo-50"
@@ -382,24 +537,58 @@ ${formData.chargingPointIndex==i
 
 </div>
 
+<div>
+
+<label className="font-medium text-gray-700">
+Select Date
+</label>
+
+<input
+type="date"
+name="date"
+min={new Date().toISOString().split("T")[0]}
+onChange={handleChange}
+className="w-full border rounded-lg p-3 mt-2"
+/>
+
+</div>
 
 {/* SLOT */}
 
 <div>
 
 <label className="font-medium text-gray-700">
-Slot
+Select Slot
 </label>
 
 <select
 name="slot"
 onChange={handleChange}
-className="w-full border rounded-lg p-3 mt-2">
+disabled={!formData.date}
+className="w-full border rounded-lg p-3 mt-2"
+> 
 
-<option>08:00 - 09:00</option>
-<option>09:00 - 10:00</option>
-<option>10:00 - 11:00</option>
-<option>11:00 - 12:00</option>
+<option value="">Choose Slot</option>
+
+{slots.map((slot)=>{
+
+const isBooked = bookedSlots.includes(slot);
+
+return(
+
+<option
+key={slot}
+value={slot}
+disabled={isBooked}
+>
+
+{slot} {isBooked ? "(Booked)" : "(Available)"}
+
+</option>
+
+);
+
+})}
 
 </select>
 
@@ -444,6 +633,8 @@ Estimated Cost
 </p>
 
 </div>
+
+
 
 
 <button

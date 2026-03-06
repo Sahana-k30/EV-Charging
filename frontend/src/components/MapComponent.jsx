@@ -37,8 +37,8 @@ const MapComponent = ({ stations = [], userLocation = null, onStationClick }) =>
       [userLocation.lat, userLocation.lng],
       {
         radius: 8,
-        fillColor: "#2ecc71",
-        color: "#27ae60",
+        fillColor: "#ff0000",
+        color: "#ff0000",
         weight: 2,
         fillOpacity: 0.9
       }

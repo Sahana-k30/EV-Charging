@@ -4,8 +4,35 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const path = require('path');
+const cors = require("cors");
+
+
+const app = express();
 
 const User = require('./models/User');
+
+const http = require("http");
+const { Server } = require("socket.io");
+
+
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173",   // your React app
+    methods: ["GET", "POST"]
+  }
+});
+
+app.set("io", io);
+
+io.on("connection", (socket) => {
+  console.log("Socket connected:", socket.id);
+
+  socket.on("disconnect", () => {
+    console.log("Socket disconnected:", socket.id);
+  });
+});
 
 // route modules
 const indexRoutes = require('./routes/index');
@@ -16,7 +43,6 @@ const paymentRoutes = require('./routes/payments');
 const userRoutes = require('./routes/users');
 const externalStations = require("./routes/externalStations");
 
-const app = express();
 
 // Middleware
 app.use(express.json());
@@ -94,9 +120,9 @@ mongoose.connect(
     // Register routes after session is ready
     registerRoutes();
     
-    app.listen(PORT, () => {
-        console.log(`✅ Server is running on port ${PORT}`);
-    });
+    server.listen(PORT, () => {
+        console.log(`Server running on ${PORT}`);
+        });
 })
 .catch(err => {
     console.error('❌ MongoDB Connection Error:', err.message);
@@ -109,7 +135,7 @@ mongoose.connect(
             console.log('✅ Connected to Local MongoDB');
             initializeSessionMiddleware();
             registerRoutes();
-            app.listen(PORT, () => {
+            server.listen(PORT, () => {
                 console.log(`✅ Server is running on port ${PORT}`);
             });
         })

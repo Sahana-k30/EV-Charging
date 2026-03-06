@@ -10,22 +10,43 @@ const Payments = () => {
   }, []);
 
   const fetchPayments = async () => {
-    try {
-      const res = await fetch('/payments', { credentials: 'include' });
-      if (res.ok) {
-        const data = await res.json();
-        setPayments(data.payments || []);
-        
-        // Calculate total spent
-        const total = (data.payments || []).reduce((sum, p) => sum + (p.amount || 0), 0);
-        setTotalSpent(total);
-      }
-      setLoading(false);
-    } catch (err) {
-      console.error('Error fetching payments:', err);
-      setLoading(false);
-    }
-  };
+
+try {
+
+const storedUser = JSON.parse(localStorage.getItem("user"));
+
+const userId =
+storedUser?._id ||
+storedUser?.id ||
+storedUser?.user?._id;
+
+if(!userId){
+console.log("User ID not found");
+setLoading(false);
+return;
+}
+
+const res = await fetch(`/api/payments/user/${userId}`);
+
+const data = await res.json();
+
+setPayments(data.payments || []);
+
+const total = (data.payments || []).reduce(
+(sum,p)=>sum + (p.amount || 0),0
+);
+
+setTotalSpent(total);
+
+} catch (err) {
+
+console.error("Error fetching payments:", err);
+
+}
+
+setLoading(false);
+
+};
 
   if (loading) return <div className="loading">Loading payments...</div>;
 
@@ -60,7 +81,7 @@ const Payments = () => {
                 <td>{new Date(payment.createdAt).toLocaleString()}</td>
                 <td>${payment.amount?.toFixed(2) || '0.00'}</td>
                 <td><span className={`status-${payment.status?.toLowerCase()}`}>{payment.status}</span></td>
-                <td>{payment.paymentType}</td>
+                <td>{payment.paymentMethod}</td>
                 <td>{payment.transactionId || 'N/A'}</td>
               </tr>
             ))}

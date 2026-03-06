@@ -37,14 +37,7 @@ const StationDetailModal = ({ station, isOpen, onClose }) => {
 
         {/* Tabs */}
 
-        <div className="modal-tabs">
-
-          <button
-            className={activeTab === "details" ? "active" : ""}
-            onClick={() => setActiveTab("details")}
-          >
-            Details
-          </button>
+        <div className=" h-10 modal-tabs display-flex justify-around item-center align-center gap-4 mt-4">
 
           <button
             className={activeTab === "book" ? "active" : ""}
@@ -54,56 +47,6 @@ const StationDetailModal = ({ station, isOpen, onClose }) => {
           </button>
 
         </div>
-
-
-
-        {/* DETAILS TAB */}
-
-        {activeTab === "details" && (
-
-          <div className="modal-details">
-
-            <div className="detail-section">
-              <h3>📍 Location</h3>
-              <p>{station.location?.address}</p>
-              <p>{station.location?.city}</p>
-            </div>
-
-            <div className="detail-section">
-              <h3>⚡ Charging Points</h3>
-
-              {station.chargingPoints?.length ? (
-
-                station.chargingPoints.map((point, idx) => (
-
-                  <div key={idx} className="charging-point">
-
-                    <strong>{point.type}</strong>
-
-                    <p>{point.power} kW</p>
-
-                  </div>
-
-                ))
-
-              ) : (
-
-                <p>No charging points available</p>
-
-              )}
-
-            </div>
-
-            <div className="detail-section">
-              <h3>🕐 Operating Hours</h3>
-              <p>
-                {station.operatingHours?.open} - {station.operatingHours?.close}
-              </p>
-            </div>
-
-          </div>
-
-        )}
 
 
 
